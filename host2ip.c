@@ -4,7 +4,6 @@
 #include <netdb.h>           /* gethostbyname() */
 #include <netinet/in.h>      /* sockaddr_in */
 #include <arpa/inet.h>       /* inet_addr() */
-#include <rpcsvc/ypclnt.h>   /* YP */
 #include <ctype.h>           /* isspace() */
 
 #include "host2ip.h"
@@ -37,19 +36,9 @@ struct in_addr host2ip(char *host)
   else if ((hep = gethostbyname(host))) {
     in = *(struct in_addr *)(hep->h_addr_list[0]);
   }
-  /* As a last resort, try YP. */
   else {
-    static char *domain = 0;  /* YP domain */
-    char *value;              /* key value */
-    int value_len;            /* length of returned value */
-
-    if (!domain) yp_get_default_domain(&domain);
-    if (yp_match(domain, "hosts.byname", host, strlen(host), &value, &value_len) == 0) {
-      in.s_addr = inet_addr(value);
-    } else {
       /* Everything failed */
       in.s_addr = INADDR_ANY;
-    }
   }
   return in;
 } /* host2ip */
